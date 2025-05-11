@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>欢迎页</title>
+    <style>
+        /* 保持与登录页一致的样式 */
+        body { font-family: Arial; padding: 20px; }
+        .user-info { margin: 20px; padding: 20px; border: 1px solid #ddd; }
+        .logout-btn { padding: 10px 20px; background: #dc3545; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="user-info">
+        <h2>登录成功！</h2>
+        <p id="userData">正在加载用户信息...</p>
+        <button class="logout-btn" onclick="logout()">退出登录</button>
+    </div>
+
+    <script>
+        // 页面加载时验证token
+        window.onload = async () => {
+            const token = localStorage.getItem('jwtToken')
+            if (!token) {
+                window.location.href = 'index.html'
+                return
+            }
+
+            try {
+                const response = await fetch('http://localhost:4000/afterlogin', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
+                
+                const data = await response.json()
+                document.getElementById('userData').innerHTML = 
+                    `用户名: ${data.payload.username}<br>签发时间: ${new Date(data.payload.iat * 1000)}`
+            } catch (error) {
+                logout()
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('jwtToken')
+            window.location.href = 'index.html'
+        }
+    </script>
+</body>
+</html>

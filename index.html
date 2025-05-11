@@ -60,20 +60,57 @@
     </style>
 </head>
 <body>
+    <!-- 页面加载时的登录状态检查 -->
+    <script>
+        // 页面加载时检查已有token
+        window.onload = function() {
+            if (localStorage.getItem('jwtToken')) {
+                window.location.href = 'welcome.html';
+            }
+        }
+    </script>
+
     <div class="login-container">
         <h2>用户登录</h2>
-        <form>
+        <form onsubmit="handleLogin(event)">
             <div class="form-group">
                 <label for="username">账号</label>
-                <input type="text" id="username" placeholder="请输入账号">
+                <input type="text" id="username" placeholder="请输入账号" required>
             </div>
             <div class="form-group">
                 <label for="password">密码</label>
-                <input type="password" id="password" placeholder="请输入密码">
+                <input type="password" id="password" placeholder="请输入密码" required>
             </div>
             <button type="submit" class="login-btn">登录</button>
-            <button type="button" class="register-btn">注册</button>
+            <button type="button" class="register-btn" onclick="location.href='register.html'">注册</button>
         </form>
     </div>
+
+    <!-- 登录处理逻辑 -->
+    <script>
+        async function handleLogin(e) {
+            e.preventDefault();
+            
+            const response = await fetch('http://localhost:4000/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: document.getElementById('username').value,
+                    password: document.getElementById('password').value
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                // 存储token并跳转
+                localStorage.setItem('jwtToken', data.token);
+                window.location.href = 'welcome.html';
+            } else {
+                alert('登录失败，请检查凭证');
+            }
+        }
+    </script>
 </body>
 </html>
